@@ -7,6 +7,16 @@
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt
 #
+PIPA=~/pipa
+BACKUPS=~/backups
+if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
+    echo
+else
+    mkdir $PIPA
+    mkdir $BACKUPS
+fi
+echo
+cd $PIPA
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
 COLUMNA=`tput cols`-7 export COLUMNA # Get screen width.
@@ -59,7 +69,7 @@ Mostrar dades soci concret.... g	Entrar un nou soci............ h
 Donar de baixa un soci........ i	Llistat exsocis............... j
 Fer copies seguretat.......... k	Consultar backup anterior..... l
 Entrar quota soci............. m	Revisar codi.................. n
-Tancar gestió................. Q	Prova d'edicio amb vim ....... 2
+Editar privat................. o	Tancar gestió................. Q
 Sortida del servidor ......... q	Visualització .................n
 EOF
 echo
@@ -68,10 +78,6 @@ read -n1 -s -p "Tria una opció: "
 tput sgr0
 ## Definir directoris de treball
 #
-PIPA=~/pipa
-BACKUPS=~/backups
-#
-cd $PIPA
     case "$REPLY" in
         "a")## Entrades i surtides contables
             clear
@@ -201,6 +207,11 @@ cd $PIPA
                 else
                     echo
                     read -n1 -p "repetirles? (s/n) " REPETIR
+                    if [ $REPETIR = s ]; then
+                        echo
+                    else
+
+                    fi
                     echo
                 fi
             done
@@ -298,7 +309,7 @@ cd $PIPA
                 clear
             done
             rm *.txt *.sh 2>/dev/null
-#            cd ~/pipa
+            cd ~/pipa
             cd $PIPA
             clear
             echo ;;
@@ -365,6 +376,11 @@ cd $PIPA
             echo
             nano gespip.sh
             clear
+            echo ;;
+        "o")## Editar arxiu de contrasenyes de La Pipa Plena (privat)
+            clear
+            echo
+            ccrypt -c privat.cpt
             echo ;;
 
         "Q")  clear; exit ;;
