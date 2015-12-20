@@ -13,6 +13,7 @@ if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
     echo
 else
     mkdir $PIPA
+    touch $PIPA/{contabilitat.txt,baixes.txt,socis.txt}
     mkdir $BACKUPS
 fi
 echo
@@ -85,11 +86,11 @@ tput sgr0
             while [ $MES_IMPORTS = s ]
             do
                 DATE=`date +"%d-%m-%Y"`
-                if [ -f contabilitat.txt ]; then
-                    echo
-                else
-                    touch contabilitat.txt
-                fi
+                # if [ -f contabilitat.txt ]; then
+                #     echo
+                # else
+                #     touch contabilitat.txt
+                # fi
                 echo
                 ## Crear linia amb les dades d'entrada i si en falta una et fot fora
                 read -p "Import: " IMPORT
@@ -210,7 +211,7 @@ tput sgr0
                     if [ $REPETIR = s ]; then
                         echo
                     else
-
+                        echo
                     fi
                     echo
                 fi
@@ -259,15 +260,10 @@ tput sgr0
             clear
             echo
             FILES=(`date +%d%m%Y%M%S`.tar.bz2)
-            if [ -d $BACKUPS ]; then
-                echo
-            else
-                mkdir $BACKUPS
-            fi
-            tar -c *.txt *.sh | bzip2 > $BACKUPS/$FILES
+            tar -c *.txt | bzip2 > $BACKUPS/$FILES
             echo "Realitzada copia de seguretat a ~/backups dels arxius: "
             echo
-            ls *.txt *.sh
+            ls *.txt
             ## Guardar només les darreres 5 copies de seguretat i anar suprimint la més antiga.
             #
             ANTIC=`ls -lt $BACKUPS | tail -n 1 | cut -d " " -f 9`
@@ -286,7 +282,7 @@ tput sgr0
             TORNAR=s
             while [ $TORNAR = s ]
             do
-                ls *.{sh,txt}
+                ls *.txt
                 echo
                 read -p "Quin arxiu vols veure?: " LLEGIR
                 echo
@@ -299,8 +295,6 @@ tput sgr0
                 elif [ $LLEGIR == baixes.txt ]; then
                     cat baixes.txt
                     echo
-                elif [ $LLEGIR == gespip.sh ]; then
-                    cat gespip.sh | less
                 else
                     echo "Opció no valida."
                 fi
@@ -308,8 +302,8 @@ tput sgr0
                 read -n1 -p "Fer nova consulta? (s/n): " TORNAR
                 clear
             done
-            rm *.txt *.sh 2>/dev/null
-            cd ~/pipa
+            rm *.txt
+ #           cd ~/pipa
             cd $PIPA
             clear
             echo ;;
@@ -374,13 +368,18 @@ tput sgr0
             echo ;;
         "n")## Revisar el codi
             echo
-            nano gespip.sh
+            nano ~/gespip/gespip.sh
             clear
             echo ;;
         "o")## Editar arxiu de contrasenyes de La Pipa Plena (privat)
             clear
             echo
-            ccrypt -c privat.cpt
+            if [ -f privat.cpt ]; then
+                ccrypt -c privat.cpt
+            else
+                echo
+                echo "No hi ha arxius privats."
+            fi
             echo ;;
 
         "Q")  clear; exit ;;
