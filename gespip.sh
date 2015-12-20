@@ -43,7 +43,8 @@ COLS=`tput cols`
 COLA=$((COLS/2-9))
 tput cup 22 $COLA
 tput bold
-    }
+}
+####
 #### COMENÇA ##########
 #######################
 #
@@ -70,8 +71,8 @@ Mostrar dades soci concret.... g	Entrar un nou soci............ h
 Donar de baixa un soci........ i	Llistat exsocis............... j
 Fer copies seguretat.......... k	Consultar backup anterior..... l
 Entrar quota soci............. m	Revisar codi.................. n
-Editar privat................. o	Tancar gestió................. Q
-Sortida del servidor ......... q	Visualització .................n
+Editar privat................. o	Editar arxius mestres......... p
+Enviar correu als socis....... r	Tancar gestió................. Q
 EOF
 echo
 centrar
@@ -86,11 +87,6 @@ tput sgr0
             while [ $MES_IMPORTS = s ]
             do
                 DATE=`date +"%d-%m-%Y"`
-                # if [ -f contabilitat.txt ]; then
-                #     echo
-                # else
-                #     touch contabilitat.txt
-                # fi
                 echo
                 ## Crear linia amb les dades d'entrada i si en falta una et fot fora
                 read -p "Import: " IMPORT
@@ -100,11 +96,20 @@ tput sgr0
                     echo "falten algunes dades..."
                     echo
                 else
-                    printf "%-10s\t %-25s\t %s\n" "$IMPORT" "$CONCEPTA" "$DATE" >> contabilitat.txt
-                    echo
-                    ## Mostrar el saldo
-                    awk 'BEGIN { FS = "\t" };{ sum += $1; } END { print "Saldo: " sum; }' contabilitat.txt
-                    echo
+                    let NUM1=$IMPORT
+                    let NUM1*=1
+                    NUM2=`echo $NUM1`
+                    if [ $NUM2 -eq 0 ]; then
+                        echo
+                        echo "$IMPORT no es un número"
+                        echo
+                    else
+                        printf "%-10s\t %-25s\t %s\n" "$IMPORT" "$CONCEPTA" "$DATE" >> contabilitat.txt
+                        echo
+                        ## Mostrar el saldo
+                        awk 'BEGIN { FS = "\t" };{ sum += $1; } END { print "Saldo: " sum; }' contabilitat.txt
+                        echo
+                    fi
                 fi
                 sed '/^$/d' contabilitat.txt > /tmp/conta.txt
                 cp /tmp/conta.txt contabilitat.txt
@@ -123,22 +128,24 @@ tput sgr0
             echo ;;
         "d")## Mostrar tot el registre de contabilitat
             echo
-            cat contabilitat.txt | less
             clear
+            cat contabilitat.txt
             echo ;;
         "e")## Esborrar la última entrada contable
+            echo
             clear
             echo
             read -n1 -p "Esborrar última entrada contable de l'arxiu contabilitat.txt? (s/n) " ESBORRAR
             echo
-            if [ $ESBORRAR = "s" ]; then
+            while [ $ESBORRAR = s ]
+            do
                 sed '$d' contabilitat.txt > /tmp/contabilitat
                 cp /tmp/contabilitat contabilitat.txt
                 rm /tmp/contabilitat
                 echo
-                echo "Fet"
-            fi
-            clear
+                read -n 1 -p "Esborrar més linies? (s/n) " ESBORRAR
+                clear
+            done
             echo ;;
         "f")## Mostrar nom dels socis i correu
             clear
@@ -220,6 +227,8 @@ tput sgr0
         "i")## Donar de baixa un soci
             clear
             echo
+            awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %-10s %s\n", $1, $2, $3, $4, $13 }' socis.txt
+            echo
             read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
             #
             BAIXA=`sed -n "/^${NUM_BAIXA}/p" socis.txt`
@@ -279,6 +288,7 @@ tput sgr0
             cd $BACKUPS
             echo
             tar -xf `ls -ltr | tail -n 1 | cut -d " " -f 9`
+            clear
             TORNAR=s
             while [ $TORNAR = s ]
             do
@@ -286,24 +296,12 @@ tput sgr0
                 echo
                 read -p "Quin arxiu vols veure?: " LLEGIR
                 echo
-                if [ $LLEGIR == socis.txt ]; then
-                    cat socis.txt
-                    echo
-                elif [ $LLEGIR == contabilitat.txt ]; then
-                    cat contabilitat.txt
-                    echo
-                elif [ $LLEGIR == baixes.txt ]; then
-                    cat baixes.txt
-                    echo
-                else
-                    echo "Opció no valida."
-                fi
+                cat $LLEGIR
                 echo
                 read -n1 -p "Fer nova consulta? (s/n): " TORNAR
                 clear
             done
             rm *.txt
- #           cd ~/pipa
             cd $PIPA
             clear
             echo ;;
@@ -379,6 +377,36 @@ tput sgr0
             else
                 echo
                 echo "No hi ha arxius privats."
+            fi
+            ec0ho ;;
+        "p")## Editar arxius mestres (contabilitat.txt, socis.txt i baixes.txt...)
+            echo
+            ls *.txt
+            echo
+            read -p "Quin arxiu s'ha d'editar?: " EDITAR
+            echo
+            nano $EDITAR
+            echo ;;
+        "r")## Enviar correu al tots els socis
+            echo
+            clear
+            awk 'BEGIN { FS = ";" };{ print$13 }' socis.txt > correus.txt
+            read -p "Assumpte del correu: " ASSUMPTE
+            echo
+            read -p "Text del misatge: " TEXT
+            echo
+            PASS=`sed -n 1p /etc/sendemail/sendemail.conf`
+            read -n 1 -p "Enviar el correu a tots els socis? (s/n): " CORREU
+            if [ $CORREU = s ]; then
+                i=0
+                while read line
+                do i=$(($i+1));
+                   sendemail -f lapipaplena@gmail.com -t $line -s smtp.gmail.com:587 -u "$ASSUMPTE" -m "$TEXT" -xu lapipaplena -xp $PASS -o tls=yes
+                done < correus.txt
+                echo
+                echo "Enviats $i correus"
+            else
+                echo
             fi
             echo ;;
 
