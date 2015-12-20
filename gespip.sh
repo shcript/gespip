@@ -2,11 +2,12 @@
 # Date: 29-12-2015
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 1.0
+# Version: 2.0
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
 #
+## Crear directoris de treball i arxius
 PIPA=~/pipa
 BACKUPS=~/backups
 if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
@@ -78,7 +79,7 @@ echo
 centrar
 read -n1 -s -p "Tria una opció: "
 tput sgr0
-## Definir directoris de treball
+## Opcions del menú
 #
     case "$REPLY" in
         "a")## Entrades i surtides contables
@@ -99,6 +100,7 @@ tput sgr0
                     let NUM1=$IMPORT
                     let NUM1*=1
                     NUM2=`echo $NUM1`
+                    ## comprobar que l'IMPORT sigui un número
                     if [ $NUM2 -eq 0 ]; then
                         echo
                         echo "$IMPORT no es un número"
@@ -265,7 +267,7 @@ tput sgr0
             echo "S'han donat de baixa $EX socis"
             rm /tmp/baixes
             echo ;;
-        "k")## fer copies seguretat dels fixer .txt i .sh
+        "k")## fer copies seguretat dels fixer .txt
             clear
             echo
             FILES=(`date +%d%m%Y%M%S`.tar.bz2)
@@ -364,7 +366,7 @@ tput sgr0
                 echo
             fi
             echo ;;
-        "n")## Revisar el codi
+        "n")## Revisar el codi del gespip.sh
             echo
             nano ~/gespip/gespip.sh
             clear
