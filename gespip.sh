@@ -5,7 +5,7 @@
 # Version: 1.0
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
-# Require: ccrypt
+# Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
 #
 PIPA=~/pipa
 BACKUPS=~/backups
