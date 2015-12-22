@@ -19,6 +19,7 @@ else
 fi
 echo
 cd $PIPA
+DATE=`date +"%d-%m-%Y"`
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
 COLUMNA=`tput cols`-7 export COLUMNA # Get screen width.
@@ -87,7 +88,6 @@ tput sgr0
             MES_IMPORTS=s
             while [ $MES_IMPORTS = s ]
             do
-                DATE=`date +"%d-%m-%Y"`
                 echo
                 ## Crear linia amb les dades d'entrada i si en falta una et fot fora
                 read -p "Import: " IMPORT
@@ -387,7 +387,14 @@ tput sgr0
             echo
             read -p "Quin arxiu s'ha d'editar?: " EDITAR
             echo
-            nano $EDITAR
+            if [ -f $EDITAR ]; then
+                echo
+                nano $EDITAR
+            else
+                echo
+                echo "L'arxiu demanat no existeix"
+                echo
+            fi
             echo ;;
         "r")## Enviar correu al tots els socis
             echo
@@ -395,11 +402,12 @@ tput sgr0
             awk 'BEGIN { FS = ";" };{ print$13 }' socis.txt > correus.txt
             read -p "Assumpte del correu: " ASSUMPTE
             echo
-            read -p "Text del misatge: " TEXT
+            read -p "Text del missatge: " TEXT
             echo
-            PASS=`sed -n 1p /etc/sendemail/sendemail.conf`
-            read -n 1 -p "Enviar el correu a tots els socis? (s/n): " CORREU
-            if [ $CORREU = s ]; then
+            read -n 1 -p "Confirma l'enviament del missatge (s/n): " CONFIRMAR
+            echo
+            if [ $CONFIRMAR = s ]; then
+                PASS=`sed -n 1p /etc/sendemail/sendemail.conf`
                 i=0
                 while read line
                 do i=$(($i+1));
@@ -407,7 +415,20 @@ tput sgr0
                 done < correus.txt
                 echo
                 echo "Enviats $i correus"
+                ## Grabar els missatges a l'arxiu missatges.txt
+                if [ -f missatges.txt ]; then
+                    sed -i "1i ${DATE}\t${ASSUMPTE}\n${TEXT}" missatges.txt
+                    sed -i '1i\ **************************************** \' missatges.txt
+                    echo
+                else
+                    touch missatges.txt
+                    echo -e "${DATE}\t${ASSUMPTE}\n${TEXT}" >> missatges.txt
+                    sed -i '1i\**************************************** \' missatges.txt
+                    echo
+                fi
             else
+                echo
+                echo "Abortat enviament... "
                 echo
             fi
             echo ;;
