@@ -398,39 +398,67 @@ tput sgr0
             echo ;;
         "r")## Enviar correu al tots els socis
             echo
+            if [ -f missatges.txt ]; then
+                echo
+            else
+                touch missatges.txt
+            fi
+            DATE=`date +"%d-%m-%Y"`
+            echo
             clear
-            awk 'BEGIN { FS = ";" };{ print$13 }' socis.txt > correus.txt
+            #awk 'BEGIN { FS = ";" };{ print$13 }' socis.txt > correus.txt
             read -p "Assumpte del correu: " ASSUMPTE
             echo
             read -p "Text del missatge: " TEXT
             echo
+            touch /tmp/missatge
+            echo $TEXT | sed G > /tmp/missatge
+            read -n 1 -p "Vols entrar més paragrafs? (s/n): " CONTINUAR
+            echo
+            clear
+            while [ $CONTINUAR = s ]
+            do
+                echo
+                read -p "Continua escribint... " TEXT
+                echo $TEXT | sed G >> /tmp/missatge
+                echo
+                read -n 1 -p "Vols entrar un altre paràgrafs? (s/n):  " CONTINUAR
+                echo
+                clear
+            done
+            echo
+            cat /tmp/missatge
+            echo
+            ## Editar amb nano:
+            read -n 1 -p "Editar el missatge per modificar-lo? (s/n): " MODIFICAR
+            if [ $MODIFICAR = s ];then
+                echo
+                nano /tmp/missatge
+                echo
+            else
+                echo
+            fi
             read -n 1 -p "Confirma l'enviament del missatge (s/n): " CONFIRMAR
             echo
             if [ $CONFIRMAR = s ]; then
-                PASS=`sed -n 1p /etc/sendemail/sendemail.conf`
                 i=0
                 while read line
                 do i=$(($i+1));
-                   sendemail -f lapipaplena@gmail.com -t $line -s smtp.gmail.com:587 -u "$ASSUMPTE" -m "$TEXT" -xu lapipaplena -xp $PASS -o tls=yes
+                   echo "mail -s "$ASSUMPTE" $line < /tmp/missatge"
                 done < correus.txt
                 echo
                 echo "Enviats $i correus"
                 ## Grabar els missatges a l'arxiu missatges.txt
-                if [ -f missatges.txt ]; then
-                    sed -i "1i ${DATE}\t${ASSUMPTE}\n${TEXT}" missatges.txt
-                    sed -i '1i\ **************************************** \' missatges.txt
-                    echo
-                else
-                    touch missatges.txt
-                    echo -e "${DATE}\t${ASSUMPTE}\n${TEXT}" >> missatges.txt
-                    sed -i '1i\**************************************** \' missatges.txt
-                    echo
-                fi
+                echo "*****************************************" >> missatges.txt
+                echo -e "${DATE}\t${ASSUMPTE}\n" >> missatges.txt
+                cat /tmp/missatge >> missatges.txt
+                echo
             else
                 echo
                 echo "Abortat enviament... "
                 echo
             fi
+            rm /tmp/missatge
             echo ;;
 
         "Q")  clear; exit ;;
