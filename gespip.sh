@@ -2,7 +2,7 @@
 # Date: 29-12-2015
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 2.5
+# Version: 2.8
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
