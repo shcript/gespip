@@ -380,9 +380,10 @@ tput sgr0
                 echo
                 echo "No hi ha arxius privats."
             fi
-            ec0ho ;;
+            echo ;;
         "p")## Editar arxius mestres (contabilitat.txt, socis.txt i baixes.txt...)
             echo
+            clear
             ls *.txt
             echo
             read -p "Quin arxiu s'ha d'editar?: " EDITAR
