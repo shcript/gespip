@@ -74,7 +74,8 @@ Donar de baixa un soci........ i	Llistat exsocis............... j
 Fer copies seguretat.......... k	Consultar backup anterior..... l
 Entrar quota soci............. m	Revisar codi.................. n
 Editar privat................. o	Editar arxius mestres......... p
-Enviar correu als socis....... r	Tancar gestió................. Q
+Enviar correu als socis....... r	Historial de missatges........ s
+Tancar gestió................. Q
 EOF
 echo
 centrar
@@ -432,6 +433,7 @@ tput sgr0
             echo
             ## Editar amb nano:
             read -n 1 -p "Editar el missatge per modificar-lo? (s/n): " MODIFICAR
+            echo
             if [ $MODIFICAR = s ];then
                 echo
                 nano /tmp/missatge
@@ -445,7 +447,7 @@ tput sgr0
                 i=0
                 while read line
                 do i=$(($i+1));
-                   echo "mail -s "$ASSUMPTE" $line < /tmp/missatge"
+                   mail -s "$ASSUMPTE" $line < /tmp/missatge
                 done < correus.txt
                 echo
                 echo "Enviats $i correus"
@@ -460,6 +462,18 @@ tput sgr0
                 echo
             fi
             rm /tmp/missatge
+            echo ;;
+        "s")## Revisar historial de missatges
+            echo
+            clear
+            if [ -f missatges.txt ]; then
+                echo
+                cat missatges.txt
+                echo
+            else
+                echo "No hi ha historial de missatges..."
+                echo
+            fi
             echo ;;
 
         "Q")  clear; exit ;;
