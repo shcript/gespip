@@ -243,13 +243,13 @@ tput sgr0
             else
                 # posar la baixa a baixes.txt
                 echo $BAIXA >> baixes.txt
-                sed '/^$/d' baixes.txt >> /tmp/baixes
-                sort -u -t ";" -k1n /tmp/baixes > baixes.txt
+                sort -u -t ";" -k1n baixes.txt > /tmp/baixes
+                cp /tmp/baixes baixes.txt
                 rm /tmp/baixes
                 echo
                 # treure soci d l'arxiu socis.txt
-                sed -e "/${BAIXA}/d" socis.txt > /tmp/socis
-                sort -u -t ";" -k1n /tmp/socis > socis.txt
+                sed -e "/^${NUM_BAIXA}/d" socis.txt > /tmp/socis
+                cp /tmp/socis socis.txt
                 rm /tmp/socis
                 echo
                 echo "fet"
