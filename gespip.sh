@@ -1,8 +1,8 @@
 #!/bin/bash
-# Date: 29-12-2015
+# Date: 10-01-2016
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 2.8
+# Version: 3.0
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
@@ -20,6 +20,13 @@ fi
 echo
 cd $PIPA
 DATE=`date +"%d-%m-%Y"`
+ANY=$(date | cut -d " " -f 6)
+if [ -f ${ANY}.txt ]; then
+    echo
+else
+    touch ${ANY}.txt
+    awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %s\n", $1, $2, $3, $4 }' socis.txt > ${ANY}.txt
+fi
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
 COLUMNA=`tput cols`-7 export COLUMNA # Get screen width.
@@ -311,34 +318,23 @@ tput sgr0
         "m")## Entrar quotas, veure pendents i socis al corrent de pagament
             echo
             clear
-            read -p "Quotes de l'any?: " QUOTES
-            if [ -f ${QUOTES}.txt ]; then
-                echo
-            else
-                touch ${QUOTES}.txt
-                awk 'BEGIN { FS = ";" };{ printf "%-10s %-10s %s\n", $2, $3, $4 }' socis.txt  > /tmp/quotes
-                sed = /tmp/quotes | sed 'N;s/\n/\t/' > ${QUOTES}.txt
-            fi
-            echo
             read -n 1 -p "Entrar la quota d'un soci? (s/n): " ENTRAR
             echo
             while [ $ENTRAR = s ]
             do
-                echo
-                cat ${QUOTES}.txt
+                clear
+                cat ${ANY}.txt
                 echo
                 read -p "Número de soci que ha fet el pagament?: " NUM
                 echo
-                clear
-                awk '{print$1}' ${QUOTES}.txt > /tmp/num
+                awk '{print$1}' ${ANY}.txt > /tmp/num
                 grep $NUM /tmp/num
                 if [ $? -eq 0 ]; then
-                    let A=$NUM
                     echo
-                    sed -i "$A s|$| --> Pagat|" ${QUOTES}.txt
+                    sed -i "/^$NUM/ s|$| --> Pagat|" ${ANY}.txt
+                    clear
                     echo
-                    cat ${QUOTES}.txt
-                    echo
+                    cat ${ANY}.txt
                     echo
                 else
                     echo
@@ -347,7 +343,7 @@ tput sgr0
                 fi
                 echo
                 read -n 1 -p "Entrar un altre pagament? (s/n): " ENTRAR
-                clear
+                echo
             done
             clear
             echo
@@ -355,7 +351,7 @@ tput sgr0
             echo
             if [ $CORRENT = s ]; then
                 echo
-                cat ${QUOTES}.txt | grep "Pagat"
+                cat ${ANY}.txt | grep "Pagat"
                 echo
             fi
             echo
@@ -363,7 +359,7 @@ tput sgr0
             echo
             if [ $PENDENT = s ]; then
                 echo
-                cat ${QUOTES}.txt | grep -v "Pagat"
+                cat ${ANY}.txt | grep -v "Pagat"
                 echo
             fi
             echo ;;
