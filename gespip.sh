@@ -378,21 +378,31 @@ tput sgr0
                 echo "No hi ha arxius privats."
             fi
             echo ;;
-        "p")## Editar arxius mestres (contabilitat.txt, socis.txt i baixes.txt...)
+        "p")## Editar arxius mestres (contabilitat.txt, socis.txt, baixes.txt...)
             echo
             clear
-            ls *.txt
+            array=($(ls *.txt))
+            echo "Editar l'arxiu..."
             echo
-            read -p "Quin arxiu s'ha d'editar?: " EDITAR
-            echo
-            if [ -f $EDITAR ]; then
+            CON=0
+            EDITAR=s
+            while [ $EDITAR = s ]
+            do
+                for i in `ls *.txt`
+                do
+                    echo "[$CON] $i"
+                    ((CON+=1))
+                done
                 echo
-                nano $EDITAR
-            else
+                read -n 1 ARX
                 echo
-                echo "L'arxiu demanat no existeix"
+                nano ${array[ARX]}
+                clear
                 echo
-            fi
+                read -n 1 -p "Editar un altre arxiu?(s/n): " EDITAR
+                CON=0
+                clear
+            done
             echo ;;
         "r")## Enviar correu al tots els socis
             echo
