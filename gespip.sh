@@ -396,7 +396,14 @@ tput sgr0
                 echo
                 read -n 1 ARX
                 echo
-                nano ${array[ARX]}
+                if [ -z ${array[ARX]} ]; then
+                    echo
+                    clear
+                    echo "L'arxiu no existeix. Pulsar INTRO per continuar"
+                    read
+                else
+                    nano ${array[ARX]}
+                fi
                 clear
                 echo
                 read -n 1 -p "Editar un altre arxiu?(s/n): " EDITAR
