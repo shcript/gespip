@@ -397,8 +397,8 @@ tput sgr0
                 read -n 1 ARX
                 echo
                 if [ -z ${array[ARX]} ]; then
-                    echo
                     clear
+                    echo
                     echo "L'arxiu no existeix. Pulsar INTRO per continuar"
                     read
                 else
