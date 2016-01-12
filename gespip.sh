@@ -239,29 +239,37 @@ tput sgr0
             echo
             awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %-10s %s\n", $1, $2, $3, $4, $13 }' socis.txt
             echo
-            read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
-            #
-            BAIXA=`sed -n "/^${NUM_BAIXA}/p" socis.txt`
-            #
-            if [[ -z $BAIXA ]]; then
+            MES_BAIXES=s
+            while [ $MES_BAIXES = s ]
+            do
                 echo
-                echo "No hi ha cap soci amb aquest número"
+                read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
+                #
+                BAIXA=`sed -n "/^${NUM_BAIXA}/p" socis.txt`
+                #
+                if [[ -z $BAIXA ]]; then
+                    echo
+                    echo "No hi ha cap soci amb aquest número"
+                    echo
+                else
+                    # posar la baixa a baixes.txt
+                    echo $BAIXA >> baixes.txt
+                    sort -u -t ";" -k1n baixes.txt > /tmp/baixes
+                    cp /tmp/baixes baixes.txt
+                    rm /tmp/baixes
+                    echo
+                    # treure soci d l'arxiu socis.txt
+                    sed -e "/^${NUM_BAIXA}/d" socis.txt > /tmp/socis
+                    cp /tmp/socis socis.txt
+                    rm /tmp/socis
+                    echo
+                    echo "fet"
+                    echo
+                fi
                 echo
-            else
-                # posar la baixa a baixes.txt
-                echo $BAIXA >> baixes.txt
-                sort -u -t ";" -k1n baixes.txt > /tmp/baixes
-                cp /tmp/baixes baixes.txt
-                rm /tmp/baixes
+                read -n 1 -p "Entrar més baixes? (s/n) " MES_BAIXES
                 echo
-                # treure soci d l'arxiu socis.txt
-                sed -e "/^${NUM_BAIXA}/d" socis.txt > /tmp/socis
-                cp /tmp/socis socis.txt
-                rm /tmp/socis
-                echo
-                echo "fet"
-                echo
-            fi
+            done
             echo ;;
         "j")## Llistat d'exsocis
             echo
