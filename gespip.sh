@@ -235,13 +235,13 @@ tput sgr0
             done
             echo ;;
         "i")## Donar de baixa un soci
-            clear
-            echo
-            awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %-10s %s\n", $1, $2, $3, $4, $13 }' socis.txt
             echo
             MES_BAIXES=s
             while [ $MES_BAIXES = s ]
             do
+                clear
+                echo
+                awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %-10s %s\n", $1, $2, $3, $4, $13 }' socis.txt
                 echo
                 read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
                 #
