@@ -2,7 +2,7 @@
 # Date: 10-01-2016
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 3.0
+# Version: 3.5
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
@@ -20,7 +20,7 @@ fi
 echo
 cd $PIPA
 DATE=`date +"%d-%m-%Y"`
-ANY=$(date | cut -d " " -f 6)
+ANY=$(date +%Y)
 if [ -f ${ANY}.txt ]; then
     echo
 else
