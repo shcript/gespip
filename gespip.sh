@@ -17,7 +17,7 @@ else
     touch $PIPA/{contabilitat.txt,baixes.txt,socis.txt}
     mkdir $BACKUPS
 fi
-echo
+#
 cd $PIPA
 DATE=`date +"%d-%m-%Y"`
 ANY=$(date +%Y)
@@ -229,6 +229,11 @@ tput sgr0
                         echo
                     else
                         echo
+<<<<<<< HEAD
+ #                       read -n1 -p "repetirles? (s/n) " REPETIR
+ #                       echo
+=======
+>>>>>>> 7c53ecc21c16af6181acd645193dc6c0c92f8742
                     fi
                     echo
                 fi
