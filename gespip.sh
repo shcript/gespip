@@ -64,7 +64,7 @@ do
     echo
     printf '=%.s' {1..77} | center
     tput bold
-    echo " **** Menú d'administració de La Pipa Plena****" | center
+    echo " **** Menú d'administració de l'associació ****" | center
     tput sgr0
     tput dim
     tput sgr0
