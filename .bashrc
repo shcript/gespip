@@ -1,2 +1,0 @@
-gespip/./gespip.sh
-
