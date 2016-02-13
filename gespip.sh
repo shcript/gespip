@@ -15,7 +15,7 @@ else
     mkdir $PIPA
     mkdir $BACKUPS
 fi
-echo
+#
 cd $PIPA
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
@@ -210,7 +210,9 @@ tput sgr0
                     if [ $REPETIR = s ]; then
                         echo
                     else
-
+                        echo
+ #                       read -n1 -p "repetirles? (s/n) " REPETIR
+ #                       echo
                     fi
                     echo
                 fi
