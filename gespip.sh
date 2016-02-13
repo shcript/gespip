@@ -8,6 +8,7 @@
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
 #
 ## Crear directoris de treball i arxius
+export LANG=ca_ES.UTF-8
 PIPA=~/pipa
 BACKUPS=~/backups
 if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
