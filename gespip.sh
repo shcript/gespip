@@ -1,22 +1,32 @@
 #!/bin/bash
-# Date: 29-12-2015
+# Date: 10-01-2016
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 1.0
+# Version: 3.5
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
-# Require: ccrypt
+# Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
 #
+## Crear directoris de treball i arxius
 PIPA=~/pipa
 BACKUPS=~/backups
 if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
     echo
 else
     mkdir $PIPA
+    touch $PIPA/{contabilitat.txt,baixes.txt,socis.txt}
     mkdir $BACKUPS
 fi
 #
 cd $PIPA
+DATE=`date +"%d-%m-%Y"`
+ANY=$(date +%Y)
+if [ -f ${ANY}.txt ]; then
+    echo
+else
+    touch ${ANY}.txt
+    awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %s\n", $1, $2, $3, $4 }' socis.txt > ${ANY}.txt
+fi
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
 COLUMNA=`tput cols`-7 export COLUMNA # Get screen width.
@@ -42,7 +52,8 @@ COLS=`tput cols`
 COLA=$((COLS/2-9))
 tput cup 22 $COLA
 tput bold
-    }
+}
+####
 #### COMENÇA ##########
 #######################
 #
@@ -69,14 +80,15 @@ Mostrar dades soci concret.... g	Entrar un nou soci............ h
 Donar de baixa un soci........ i	Llistat exsocis............... j
 Fer copies seguretat.......... k	Consultar backup anterior..... l
 Entrar quota soci............. m	Revisar codi.................. n
-Editar privat................. o	Tancar gestió................. Q
-Sortida del servidor ......... q	Visualització .................n
+Editar privat................. o	Editar arxius mestres......... p
+Enviar correu als socis....... r	Historial de missatges........ s
+Tancar gestió................. Q
 EOF
 echo
 centrar
 read -n1 -s -p "Tria una opció: "
 tput sgr0
-## Definir directoris de treball
+## Opcions del menú
 #
     case "$REPLY" in
         "a")## Entrades i surtides contables
@@ -84,12 +96,6 @@ tput sgr0
             MES_IMPORTS=s
             while [ $MES_IMPORTS = s ]
             do
-                DATE=`date +"%d-%m-%Y"`
-                if [ -f contabilitat.txt ]; then
-                    echo
-                else
-                    touch contabilitat.txt
-                fi
                 echo
                 ## Crear linia amb les dades d'entrada i si en falta una et fot fora
                 read -p "Import: " IMPORT
@@ -99,11 +105,21 @@ tput sgr0
                     echo "falten algunes dades..."
                     echo
                 else
-                    printf "%-10s\t %-25s\t %s\n" "$IMPORT" "$CONCEPTA" "$DATE" >> contabilitat.txt
-                    echo
-                    ## Mostrar el saldo
-                    awk 'BEGIN { FS = "\t" };{ sum += $1; } END { print "Saldo: " sum; }' contabilitat.txt
-                    echo
+                    let NUM1=$IMPORT
+                    let NUM1*=1
+                    NUM2=`echo $NUM1`
+                    ## comprobar que l'IMPORT sigui un número
+                    if [ $NUM2 -eq 0 ]; then
+                        echo
+                        echo "$IMPORT no es un número"
+                        echo
+                    else
+                        printf "%-10s\t %-25s\t %s\n" "$IMPORT" "$CONCEPTA" "$DATE" >> contabilitat.txt
+                        echo
+                        ## Mostrar el saldo
+                        awk 'BEGIN { FS = "\t" };{ sum += $1; } END { print "Saldo: " sum; }' contabilitat.txt
+                        echo
+                    fi
                 fi
                 sed '/^$/d' contabilitat.txt > /tmp/conta.txt
                 cp /tmp/conta.txt contabilitat.txt
@@ -122,22 +138,24 @@ tput sgr0
             echo ;;
         "d")## Mostrar tot el registre de contabilitat
             echo
-            cat contabilitat.txt | less
             clear
+            cat contabilitat.txt
             echo ;;
         "e")## Esborrar la última entrada contable
+            echo
             clear
             echo
             read -n1 -p "Esborrar última entrada contable de l'arxiu contabilitat.txt? (s/n) " ESBORRAR
             echo
-            if [ $ESBORRAR = "s" ]; then
+            while [ $ESBORRAR = s ]
+            do
                 sed '$d' contabilitat.txt > /tmp/contabilitat
                 cp /tmp/contabilitat contabilitat.txt
                 rm /tmp/contabilitat
                 echo
-                echo "Fet"
-            fi
-            clear
+                read -n 1 -p "Esborrar més linies? (s/n) " ESBORRAR
+                clear
+            done
             echo ;;
         "f")## Mostrar nom dels socis i correu
             clear
@@ -211,39 +229,52 @@ tput sgr0
                         echo
                     else
                         echo
+<<<<<<< HEAD
  #                       read -n1 -p "repetirles? (s/n) " REPETIR
  #                       echo
+=======
+>>>>>>> 7c53ecc21c16af6181acd645193dc6c0c92f8742
                     fi
                     echo
                 fi
             done
             echo ;;
         "i")## Donar de baixa un soci
-            clear
             echo
-            read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
-            #
-            BAIXA=`sed -n "/^${NUM_BAIXA}/p" socis.txt`
-            #
-            if [[ -z $BAIXA ]]; then
+            MES_BAIXES=s
+            while [ $MES_BAIXES = s ]
+            do
+                clear
                 echo
-                echo "No hi ha cap soci amb aquest número"
+                awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %-10s %s\n", $1, $2, $3, $4, $13 }' socis.txt
                 echo
-            else
-                # posar la baixa a baixes.txt
-                echo $BAIXA >> baixes.txt
-                sed '/^$/d' baixes.txt >> /tmp/baixes
-                sort -u -t ";" -k1n /tmp/baixes > baixes.txt
-                rm /tmp/baixes
+                read -p "Baixa del soci NÚMERO?: " NUM_BAIXA
+                #
+                BAIXA=`sed -n "/^${NUM_BAIXA}/p" socis.txt`
+                #
+                if [[ -z $BAIXA ]]; then
+                    echo
+                    echo "No hi ha cap soci amb aquest número"
+                    echo
+                else
+                    # posar la baixa a baixes.txt
+                    echo $BAIXA >> baixes.txt
+                    sort -u -t ";" -k1n baixes.txt > /tmp/baixes
+                    cp /tmp/baixes baixes.txt
+                    rm /tmp/baixes
+                    echo
+                    # treure soci d l'arxiu socis.txt
+                    sed -e "/^${NUM_BAIXA}/d" socis.txt > /tmp/socis
+                    cp /tmp/socis socis.txt
+                    rm /tmp/socis
+                    echo
+                    echo "fet"
+                    echo
+                fi
                 echo
-                # treure soci d l'arxiu socis.txt
-                sed -e "/${BAIXA}/d" socis.txt > /tmp/socis
-                sort -u -t ";" -k1n /tmp/socis > socis.txt
-                rm /tmp/socis
+                read -n 1 -p "Entrar més baixes? (s/n) " MES_BAIXES
                 echo
-                echo "fet"
-                echo
-            fi
+            done
             echo ;;
         "j")## Llistat d'exsocis
             echo
@@ -257,19 +288,14 @@ tput sgr0
             echo "S'han donat de baixa $EX socis"
             rm /tmp/baixes
             echo ;;
-        "k")## fer copies seguretat dels fixer .txt i .sh
+        "k")## fer copies seguretat dels fixer .txt
             clear
             echo
             FILES=(`date +%d%m%Y%M%S`.tar.bz2)
-            if [ -d $BACKUPS ]; then
-                echo
-            else
-                mkdir $BACKUPS
-            fi
-            tar -c *.txt *.sh | bzip2 > $BACKUPS/$FILES
+            tar -c *.txt | bzip2 > $BACKUPS/$FILES
             echo "Realitzada copia de seguretat a ~/backups dels arxius: "
             echo
-            ls *.txt *.sh
+            ls *.txt
             ## Guardar només les darreres 5 copies de seguretat i anar suprimint la més antiga.
             #
             ANTIC=`ls -lt $BACKUPS | tail -n 1 | cut -d " " -f 9`
@@ -285,67 +311,43 @@ tput sgr0
             cd $BACKUPS
             echo
             tar -xf `ls -ltr | tail -n 1 | cut -d " " -f 9`
+            clear
             TORNAR=s
             while [ $TORNAR = s ]
             do
-                ls *.{sh,txt}
+                ls *.txt
                 echo
                 read -p "Quin arxiu vols veure?: " LLEGIR
                 echo
-                if [ $LLEGIR == socis.txt ]; then
-                    cat socis.txt
-                    echo
-                elif [ $LLEGIR == contabilitat.txt ]; then
-                    cat contabilitat.txt
-                    echo
-                elif [ $LLEGIR == baixes.txt ]; then
-                    cat baixes.txt
-                    echo
-                elif [ $LLEGIR == gespip.sh ]; then
-                    cat gespip.sh | less
-                else
-                    echo "Opció no valida."
-                fi
+                cat $LLEGIR
                 echo
                 read -n1 -p "Fer nova consulta? (s/n): " TORNAR
                 clear
             done
-            rm *.txt *.sh 2>/dev/null
-            cd ~/pipa
+            rm *.txt
             cd $PIPA
             clear
             echo ;;
         "m")## Entrar quotas, veure pendents i socis al corrent de pagament
             echo
             clear
-            read -p "Quotes de l'any?: " QUOTES
-            if [ -f ${QUOTES}.txt ]; then
-                echo
-            else
-                touch ${QUOTES}.txt
-                awk 'BEGIN { FS = ";" };{ printf "%-10s %-10s %s\n", $2, $3, $4 }' socis.txt  > /tmp/quotes
-                sed = /tmp/quotes | sed 'N;s/\n/\t/' > ${QUOTES}.txt
-            fi
-            echo
             read -n 1 -p "Entrar la quota d'un soci? (s/n): " ENTRAR
             echo
             while [ $ENTRAR = s ]
             do
-                echo
-                cat ${QUOTES}.txt
+                clear
+                cat ${ANY}.txt
                 echo
                 read -p "Número de soci que ha fet el pagament?: " NUM
                 echo
-                clear
-                awk '{print$1}' ${QUOTES}.txt > /tmp/num
+                awk '{print$1}' ${ANY}.txt > /tmp/num
                 grep $NUM /tmp/num
                 if [ $? -eq 0 ]; then
-                    let A=$NUM
                     echo
-                    sed -i "$A s|$| --> Pagat|" ${QUOTES}.txt
+                    sed -i "/^$NUM/ s|$| --> Pagat|" ${ANY}.txt
+                    clear
                     echo
-                    cat ${QUOTES}.txt
-                    echo
+                    cat ${ANY}.txt
                     echo
                 else
                     echo
@@ -354,7 +356,7 @@ tput sgr0
                 fi
                 echo
                 read -n 1 -p "Entrar un altre pagament? (s/n): " ENTRAR
-                clear
+                echo
             done
             clear
             echo
@@ -362,7 +364,7 @@ tput sgr0
             echo
             if [ $CORRENT = s ]; then
                 echo
-                cat ${QUOTES}.txt | grep "Pagat"
+                cat ${ANY}.txt | grep "Pagat"
                 echo
             fi
             echo
@@ -370,19 +372,134 @@ tput sgr0
             echo
             if [ $PENDENT = s ]; then
                 echo
-                cat ${QUOTES}.txt | grep -v "Pagat"
+                cat ${ANY}.txt | grep -v "Pagat"
                 echo
             fi
             echo ;;
-        "n")## Revisar el codi
+        "n")## Revisar el codi del gespip.sh
             echo
-            nano gespip.sh
+            nano ~/gespip/gespip.sh
             clear
             echo ;;
         "o")## Editar arxiu de contrasenyes de La Pipa Plena (privat)
             clear
             echo
-            ccrypt -c privat.cpt
+            if [ -f privat.cpt ]; then
+                ccrypt -c privat.cpt
+            else
+                echo
+                echo "No hi ha arxius privats."
+            fi
+            echo ;;
+        "p")## Editar arxius mestres (contabilitat.txt, socis.txt, baixes.txt...)
+            echo
+            clear
+            array=($(ls *.txt))
+            echo "Editar l'arxiu..."
+            echo
+            CON=0
+            EDITAR=s
+            while [ $EDITAR = s ]
+            do
+                for i in `ls *.txt`
+                do
+                    echo "[$CON] $i"
+                    ((CON+=1))
+                done
+                echo
+                read -n 1 ARX
+                echo
+                if [ -z ${array[ARX]} ]; then
+                    clear
+                    echo
+                    echo "L'arxiu no existeix. Pulsar INTRO per continuar"
+                    read
+                else
+                    nano ${array[ARX]}
+                fi
+                clear
+                echo
+                read -n 1 -p "Editar un altre arxiu?(s/n): " EDITAR
+                CON=0
+                clear
+            done
+            echo ;;
+        "r")## Enviar correu al tots els socis
+            echo
+            if [ -f missatges.txt ]; then
+                echo
+            else
+                touch missatges.txt
+            fi
+            DATE=`date +"%d-%m-%Y"`
+            echo
+            clear
+            #awk 'BEGIN { FS = ";" };{ print$13 }' socis.txt > correus.txt
+            read -p "Assumpte del correu: " ASSUMPTE
+            echo
+            read -p "Text del missatge: " TEXT
+            echo
+            touch /tmp/missatge
+            echo $TEXT | sed G > /tmp/missatge
+            read -n 1 -p "Vols entrar més paragrafs? (s/n): " CONTINUAR
+            echo
+            clear
+            while [ $CONTINUAR = s ]
+            do
+                echo
+                read -p "Continua escribint... " TEXT
+                echo $TEXT | sed G >> /tmp/missatge
+                echo
+                read -n 1 -p "Vols entrar un altre paràgrafs? (s/n):  " CONTINUAR
+                echo
+                clear
+            done
+            echo
+            cat /tmp/missatge
+            echo
+            ## Editar amb nano:
+            read -n 1 -p "Editar el missatge per modificar-lo? (s/n): " MODIFICAR
+            echo
+            if [ $MODIFICAR = s ];then
+                echo
+                nano /tmp/missatge
+                echo
+            else
+                echo
+            fi
+            read -n 1 -p "Confirma l'enviament del missatge (s/n): " CONFIRMAR
+            echo
+            if [ $CONFIRMAR = s ]; then
+                i=0
+                while read line
+                do i=$(($i+1));
+                   mail -s "$ASSUMPTE" $line < /tmp/missatge
+                done < correus.txt
+                echo
+                echo "Enviats $i correus"
+                ## Grabar els missatges a l'arxiu missatges.txt
+                echo "*****************************************" >> missatges.txt
+                echo -e "${DATE}\t${ASSUMPTE}\n" >> missatges.txt
+                cat /tmp/missatge >> missatges.txt
+                echo
+            else
+                echo
+                echo "Abortat enviament... "
+                echo
+            fi
+            rm /tmp/missatge
+            echo ;;
+        "s")## Revisar historial de missatges
+            echo
+            clear
+            if [ -f missatges.txt ]; then
+                echo
+                cat missatges.txt
+                echo
+            else
+                echo "No hi ha historial de missatges..."
+                echo
+            fi
             echo ;;
 
         "Q")  clear; exit ;;
