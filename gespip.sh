@@ -1,25 +1,30 @@
 #!/bin/bash
-# Date: 10-01-2016
+# Date: 19-02-2016
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 3.5
+# Version: 4.0
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
 #
 ## Crear directoris de treball i arxius
-export LANG=ca_ES.UTF-8
-PIPA=~/pipa
+if [ -z $1 ]; then
+    echo
+    echo "La sintaxis es: gespip Nom_associació (gespip pipa, gespip Catplus...)"
+    echo
+    exit
+fi
+DIR=~/$1
 BACKUPS=~/backups
-if [[ -d $PIPA ]] && [[ -d $BACKUPS ]]; then
+if [[ -d $DIR ]] && [[ -d $BACKUPS ]]; then
     echo
 else
-    mkdir $PIPA
-    touch $PIPA/{contabilitat.txt,baixes.txt,socis.txt}
+    mkdir $DIR
+    touch $DIR/{contabilitat.txt,baixes.txt,socis.txt}
     mkdir $BACKUPS
 fi
 #
-cd $PIPA
+cd $DIR
 DATE=`date +"%d-%m-%Y"`
 ANY=$(date +%Y)
 if [ -f ${ANY}.txt ]; then
@@ -65,7 +70,7 @@ do
     echo
     printf '=%.s' {1..77} | center
     tput bold
-    echo " **** Menú d'administració de l'associació ****" | center
+    echo " **** Menú d'administració de "$1" ****" | center
     tput sgr0
     tput dim
     tput sgr0
@@ -323,7 +328,7 @@ tput sgr0
                 clear
             done
             rm *.txt
-            cd $PIPA
+            cd $DIR
             clear
             echo ;;
         "m")## Entrar quotas, veure pendents i socis al corrent de pagament
