@@ -1,8 +1,8 @@
 #!/bin/bash
-# Date: 19-02-2016
+# Date: 20-02-2016
 # Author: "lapipaplena" <lapipaplena@gmail.com>
 # Disseny menú: "Catplus" <info@catplus.cat>
-# Version: 4.0
+# Version: 4.5
 # Licence: GPL v3.0
 # Description: Programa de gestió d'associacions de linux
 # Require: ccrypt sendemail libnet-ssleay-perl libio-socket-ssl-perl
@@ -27,12 +27,20 @@ fi
 cd $DIR
 DATE=`date +"%d-%m-%Y"`
 ANY=$(date +%Y)
+ANY_SEGUENT=$(date --date='+2 month' | cut -d " " -f 6)
 if [ -f ${ANY}.txt ]; then
     echo
 else
     touch ${ANY}.txt
     awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %s\n", $1, $2, $3, $4 }' socis.txt > ${ANY}.txt
 fi
+echo
+if [ $ANY != $ANY_SEGUENT ]; then
+    touch ${ANY_SEGUENT}.txt
+    awk 'BEGIN { FS = ";" };{ printf "%-5s %-10s %-10s %s\n", $1, $2, $3, $4 }' socis.txt > ${ANY_SEGUENT}.txt
+    ANY=$ANY_SEGUENT
+fi
+echo
 #
 COLUMNS=`tput cols`-2 export COLUMNS # Get screen width.
 COLUMNA=`tput cols`-7 export COLUMNA # Get screen width.
