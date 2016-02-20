@@ -1,10 +1,37 @@
-# Manual de gesPIP v1.0 29/12
+# Manual de gesPIP v4.0 20/02
 
 ## Autors
 
 [Grup d'usuaris de Gnu/Linux «La Pipa Plena»] (http://www.lapipaplena.org)
 
 [Associació pel programari lliure de Catalunya] (http://www.catplus.cat)
+
+
+## NOVETATS v4.0
+
+S'ha fet una actualització del gespip. Ara s'ha d'executar amb argument (gespip pipa) i aquest argument serà el que donarà nom al directori de treball. Fins ara aquest directori (~/pipa) estava dins de l'script i clar, no tenia sentit que la gestió de catplus es fes en un directori que digues pipa.
+
+Una vegada fet el git pull, abans d'executar-lo novament, fes;
+
+```
+mv pipa Catplus
+```
+I per executar-lo:
+
+```
+gespip Catplus
+```
+
+Això permet gestionar totes les associacions que es vulguin en un mateix PC, donat que cadascuna d'elles tindrà el seu propi directori. Si l'arrenquem sense arguments, ja l'informarà l'script de com s'ha de fer. Veurà també que l'argument surt en el Main Menú. Si vol estalviar-te de posar l'argument cada cop, pots crear un alias com fem:
+
+```
+nano .bashrc
+```
+I afegir la linea:
+```
+alias gespip='gespip Catplus'
+```
+Aquesta versió 4.0 fa l'script molt més versàtil.
 
 ## Descripció
 gesPIP es un shell script en Bash, per a gestionar una associació qualsevol, amb els preceptius comptes de socis, caixa i actes, obligatoris en tota associació malgrat que ara ja poden èsser gestionats en format digital. De cadascuna de les opcions implementades al gesPIP s'en mostra un exemple dins les seves funcionalitats d'altes, baixes, modificacions i consultes.
