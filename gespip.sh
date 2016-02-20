@@ -10,7 +10,7 @@
 ## Crear directoris de treball i arxius
 if [ -z $1 ]; then
     echo
-    echo "La sintaxis es: gespip Nom_associació (gespip pipa, gespip Catplus...)"
+    echo "La sintaxis es: gespip Nom_associació (gespip La_pipa_plena, gespip Catplus...)"
     echo
     exit
 fi
